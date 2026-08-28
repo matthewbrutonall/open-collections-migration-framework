@@ -21,18 +21,41 @@ OCMF operates on a strict `DateValue` schema. The `parse_date` transform evaluat
 - Standard point dates (`1921`) and ranges (`1920-1925`) are split into `begin` and `end` values.
 - Non-standard expressions (ISO strings, circa dates, en-dashes) are safely retained in the `expression` field while omitting `begin` / `end` coordinates. This prevents malformed data from silently breaking AtoM's event date ingestion.
 
-## Development & Testing
+## Installation
 
 OCMF is configured as a native Python package.
 
 ```bash
-# Setup
 python3 -m venv venv
 source venv/bin/activate
 pip install -e .
-pip install pytest
+```
 
-# Run the test suite
+## CLI Usage
+
+The package installs the `ocmf` unified CLI tool natively into your environment.
+
+### 1. Generate a Mapping Template
+To start a new migration project, generate a blank mapping workbook:
+```bash
+ocmf template --outfile my_mapping.xlsx
+```
+
+### 2. Run the Migration Pipeline
+Once your workbook is mapped against your source data (CSV or XML), execute the full pipeline:
+```bash
+ocmf migrate --engine my_mapping.xlsx --source input_data.csv --outdir ./output
+```
+This will ingest the data, evaluate hierarchies, run the pre-flight audits, and generate:
+- `information_objects.csv` (AtoM ready)
+- `graph_snapshot.json` (Internal typed memory graph)
+- `DATA_LOSS_REGISTER.md` (Unmapped field report)
+- `LOAD_PLAYBOOK.md` (AtoM server import instructions)
+
+## Testing
+
+```bash
+pip install pytest
 pytest tests
 ```
 
