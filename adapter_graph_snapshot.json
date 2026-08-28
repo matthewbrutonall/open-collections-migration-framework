@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "item_node_0": {
+      "id": "item_node_0",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP001",
+          "kind": "local",
+          "source_field": "ref_code"
+        }
+      ],
+      "properties": {
+        "title": "The Smith Letters",
+        "dates": "Letter"
+      }
+    },
+    "creator_node_0": {
+      "id": "creator_node_0",
+      "type": "agent",
+      "identifiers": [],
+      "properties": {
+        "name": "Smith\\"
+      }
+    },
+    "item_node_1": {
+      "id": "item_node_1",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP002",
+          "kind": "local",
+          "source_field": "ref_code"
+        }
+      ],
+      "properties": {
+        "title": "Family Photo",
+        "dates": "Photograph"
+      }
+    },
+    "creator_node_1": {
+      "id": "creator_node_1",
+      "type": "agent",
+      "identifiers": [],
+      "properties": {
+        "name": "Smith\\"
+      }
+    },
+    "item_node_2": {
+      "id": "item_node_2",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP003",
+          "kind": "local",
+          "source_field": "ref_code"
+        }
+      ],
+      "properties": {
+        "title": "Diary"
+      }
+    },
+    "creator_node_2": {
+      "id": "creator_node_2",
+      "type": "agent",
+      "identifiers": [],
+      "properties": {
+        "name": "Smith\\"
+      }
+    },
+    "item_node_3": {
+      "id": "item_node_3",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP004",
+          "kind": "local",
+          "source_field": "ref_code"
+        }
+      ],
+      "properties": {
+        "title": "Account Book",
+        "dates": "1920"
+      }
+    }
+  },
+  "edges": [
+    {
+      "source_id": "item_node_0",
+      "target_id": "creator_node_0",
+      "relation": "created_by",
+      "properties": {}
+    },
+    {
+      "source_id": "item_node_1",
+      "target_id": "creator_node_1",
+      "relation": "created_by",
+      "properties": {}
+    },
+    {
+      "source_id": "item_node_2",
+      "target_id": "creator_node_2",
+      "relation": "created_by",
+      "properties": {}
+    }
+  ]
+}

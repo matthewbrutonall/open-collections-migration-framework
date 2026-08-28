@@ -1,0 +1,211 @@
+{
+  "entities": {
+    "item_node_PP001": {
+      "id": "item_node_PP001",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP001",
+          "kind": "local",
+          "source_field": "ref_code"
+        }
+      ],
+      "properties": {
+        "title": "The Smith Collection",
+        "dates": {
+          "expression": "1920-1925",
+          "begin": "1920",
+          "end": "1925",
+          "schema": null,
+          "certainty": null,
+          "inferred": false
+        }
+      }
+    },
+    "creator_node_PP001": {
+      "id": "creator_node_PP001",
+      "type": "agent",
+      "identifiers": [],
+      "properties": {
+        "name": "Smith Family"
+      }
+    },
+    "item_node_PP001_01": {
+      "id": "item_node_PP001_01",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP001.01",
+          "kind": "local",
+          "source_field": "ref_code"
+        }
+      ],
+      "properties": {
+        "title": "Series 1: Diaries",
+        "dates": {
+          "expression": "1921-1922",
+          "begin": "1921",
+          "end": "1922",
+          "schema": null,
+          "certainty": null,
+          "inferred": false
+        }
+      }
+    },
+    "item_node_PP001_01_01": {
+      "id": "item_node_PP001_01_01",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP001.01.01",
+          "kind": "local",
+          "source_field": "ref_code"
+        }
+      ],
+      "properties": {
+        "title": "Diary 1",
+        "dates": {
+          "expression": "1921",
+          "begin": "1921",
+          "end": null,
+          "schema": null,
+          "certainty": null,
+          "inferred": false
+        }
+      }
+    },
+    "creator_node_PP001_01_01": {
+      "id": "creator_node_PP001_01_01",
+      "type": "agent",
+      "identifiers": [],
+      "properties": {
+        "name": "Smith, John"
+      }
+    },
+    "item_node_PP001_01_02": {
+      "id": "item_node_PP001_01_02",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP001.01.02",
+          "kind": "local",
+          "source_field": "ref_code"
+        }
+      ],
+      "properties": {
+        "title": "Diary 2",
+        "dates": {
+          "expression": "1922",
+          "begin": "1922",
+          "end": null,
+          "schema": null,
+          "certainty": null,
+          "inferred": false
+        }
+      }
+    },
+    "creator_node_PP001_01_02": {
+      "id": "creator_node_PP001_01_02",
+      "type": "agent",
+      "identifiers": [],
+      "properties": {
+        "name": "Smith, John"
+      }
+    },
+    "item_node_PP002_01": {
+      "id": "item_node_PP002_01",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP002.01",
+          "kind": "local",
+          "source_field": "ref_code"
+        }
+      ],
+      "properties": {
+        "title": "Orphan Child Item",
+        "dates": {
+          "expression": "1930",
+          "begin": "1930",
+          "end": null,
+          "schema": null,
+          "certainty": null,
+          "inferred": false
+        }
+      }
+    },
+    "creator_node_PP002_01": {
+      "id": "creator_node_PP002_01",
+      "type": "agent",
+      "identifiers": [],
+      "properties": {
+        "name": "Doe, Jane"
+      }
+    },
+    "synthesized_PP002": {
+      "id": "synthesized_PP002",
+      "type": "description",
+      "identifiers": [
+        {
+          "value": "PP002",
+          "kind": "local",
+          "source_field": "synthesized"
+        }
+      ],
+      "properties": {
+        "title": "[Synthesized] PP002",
+        "level_of_description": "series"
+      }
+    }
+  },
+  "edges": [
+    {
+      "source_id": "item_node_PP001",
+      "target_id": "creator_node_PP001",
+      "relation": "created_by",
+      "properties": {}
+    },
+    {
+      "source_id": "item_node_PP001_01_01",
+      "target_id": "creator_node_PP001_01_01",
+      "relation": "created_by",
+      "properties": {}
+    },
+    {
+      "source_id": "item_node_PP001_01_02",
+      "target_id": "creator_node_PP001_01_02",
+      "relation": "created_by",
+      "properties": {}
+    },
+    {
+      "source_id": "item_node_PP002_01",
+      "target_id": "creator_node_PP002_01",
+      "relation": "created_by",
+      "properties": {}
+    },
+    {
+      "source_id": "item_node_PP001_01",
+      "target_id": "item_node_PP001",
+      "relation": "child_of",
+      "properties": {}
+    },
+    {
+      "source_id": "item_node_PP001_01_01",
+      "target_id": "item_node_PP001_01",
+      "relation": "child_of",
+      "properties": {}
+    },
+    {
+      "source_id": "item_node_PP001_01_02",
+      "target_id": "item_node_PP001_01",
+      "relation": "child_of",
+      "properties": {}
+    },
+    {
+      "source_id": "item_node_PP002_01",
+      "target_id": "synthesized_PP002",
+      "relation": "child_of",
+      "properties": {}
+    }
+  ]
+}

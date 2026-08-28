@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<adlibXML>
+  <recordList>
+    <record priref="1001">
+      <!-- Deduplication test: priref child and attribute -->
+      <priref>1001</priref>
+      <reference_number>
+        <value lang="en-GB">REF-001</value>
+        <value lang="fr-FR">RÉF-001</value>
+      </reference_number>
+      <title>
+        <value lang="en-GB">The Adlib Migration Test</value>
+      </title>
+      <creator>
+        <value lang="en-GB">Smith, John</value>
+      </creator>
+      <creator>
+        <value lang="en-GB">Doe, Jane</value>
+      </creator>
+      <creator_date>
+        <value lang="en-GB">1920</value>
+      </creator_date>
+    </record>
+  </recordList>
+</adlibXML>
