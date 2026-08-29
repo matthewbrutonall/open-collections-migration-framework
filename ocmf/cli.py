@@ -8,9 +8,10 @@ from ocmf.adapters.pastperfect import PastPerfectAdapter
 from ocmf.adapters.adlib import AdlibXMLAdapter
 from ocmf.hierarchy import HierarchyEngine
 from ocmf.preflight import PreflightAudit
-from ocmf.writers.atom import AtomISADWriter
+from ocmf.writers.atom import AtomISADWriter, validate_targets
 from ocmf.audit import AuditPackGenerator
 from ocmf.tools.create_template import create_template
+from ocmf.tools.profiler import Phase0Profiler
 
 def run_migrate(args):
     if not os.path.exists(args.engine):
@@ -23,10 +24,16 @@ def run_migrate(args):
     print("1. Compiling Mapping Engine...")
     try:
         engine = MappingEngine.compile_from_excel(args.engine)
+        validate_targets(engine)
     except Exception as e:
         print(f"Compile Error: {e}")
         sys.exit(1)
         
+    if args.source.lower().endswith('.dbf'):
+        print("Error: DBF migration is not supported. Export to CSV first, "
+              "or use 'ocmf profile' to inspect the DBF.")
+        sys.exit(1)
+
     print("2. Ingesting Data...")
     try:
         if args.source.lower().endswith('.xml'):
@@ -45,6 +52,20 @@ def run_migrate(args):
         graph = hierarchy.run()
     except Exception as e:
         print(f"Hierarchy Error: {e}")
+        sys.exit(1)
+
+    print("3.5 Checking Source Field Coverage...")
+    try:
+        coverage = AuditPackGenerator(
+            engine,
+            hierarchy,
+            args.source,
+            transformation_notes=getattr(adapter, 'transformation_notes', []),
+            source_fields=getattr(adapter, 'seen_source_fields', None),
+        )
+        coverage.enforce_missing_mapped_policy()
+    except Exception as e:
+        print(f"Source Coverage Error: {e}")
         sys.exit(1)
         
     print("4. Running Pre-flight Audit...")
@@ -84,7 +105,9 @@ def run_migrate(args):
     
     print("6. Generating Audit Pack...")
     try:
-        pack_gen = AuditPackGenerator(engine, hierarchy, args.source)
+        pack_gen = AuditPackGenerator(engine, hierarchy, args.source,
+                                      transformation_notes=getattr(adapter, 'transformation_notes', []),
+                                      source_fields=getattr(adapter, 'seen_source_fields', None))
         pack_gen.generate(args.outdir)
         print("   -> DATA_LOSS_REGISTER.md and LOAD_PLAYBOOK.md created successfully.")
     except Exception as e:
@@ -92,6 +115,26 @@ def run_migrate(args):
         sys.exit(1)
         
     print("\nMigration complete! Review your LOAD_PLAYBOOK.md for the next steps.")
+
+def run_profile(args):
+    if not os.path.exists(args.source):
+        print(f"Error: Source data file '{args.source}' not found.")
+        sys.exit(1)
+
+    print(f"Profiling '{args.source}'...")
+    try:
+        report = Phase0Profiler(args.source).profile()
+    except Exception as e:
+        print(f"Profile Error: {e}")
+        sys.exit(1)
+
+    report_json = json.dumps(report, indent=2)
+    if args.outfile:
+        with open(args.outfile, 'w', encoding='utf-8') as f:
+            f.write(report_json)
+        print(f"Health report written to '{args.outfile}'")
+    else:
+        print(report_json)
 
 def run_template(args):
     try:
@@ -114,13 +157,20 @@ def main():
     # Template command
     template_parser = subparsers.add_parser("template", help="Generate a blank mapping workbook template")
     template_parser.add_argument("--outfile", default="mapping_workbook.xlsx", help="Output path for the new workbook template")
-    
+
+    # Profile command (Phase 0 health report)
+    profile_parser = subparsers.add_parser("profile", help="Profile a source export (CSV/DBF): encoding, delimiter, null rates")
+    profile_parser.add_argument("--source", required=True, help="Path to the source data export (CSV or DBF)")
+    profile_parser.add_argument("--outfile", default=None, help="Write the JSON report to a file instead of stdout")
+
     args = parser.parse_args()
-    
+
     if args.command == "migrate":
         run_migrate(args)
     elif args.command == "template":
         run_template(args)
+    elif args.command == "profile":
+        run_profile(args)
 
 if __name__ == "__main__":
     main()

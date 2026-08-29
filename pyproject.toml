@@ -5,10 +5,17 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ocmf"
 version = "0.1.0"
+description = "Open Collections Migration Framework — graph-based archival ETL from legacy systems to AtoM"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
 dependencies = [
     "openpyxl",
     "chardet"
 ]
+
+[project.optional-dependencies]
+dbf = ["dbfread"]
+dev = ["pytest"]
 
 [tool.pytest.ini_options]
 pythonpath = [

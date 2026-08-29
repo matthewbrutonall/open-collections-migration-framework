@@ -20,7 +20,9 @@ def create_template(filepath: str):
     ws_policies.append(["policy_name", "policy_value"])
     ws_policies.append(["encoding", "utf-8"])
     ws_policies.append(["hierarchy", "identifier_dots"])
+    ws_policies.append(["hierarchy_source_field", "ref_code"])
     ws_policies.append(["orphans", "synthesize_parents"])
+    ws_policies.append(["missing_mapped_fields", "warn"])
     
     wb.save(filepath)
 

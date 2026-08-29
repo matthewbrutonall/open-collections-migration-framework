@@ -6,11 +6,20 @@ class PreflightAudit:
         self.graph = graph
         
     def run(self) -> bool:
+        self.check_nonempty()
         self.check_identifiers()
         self.check_mandatory_fields()
         self.check_cycles()
         return True
-        
+
+    def check_nonempty(self):
+        descriptions = [e for e in self.graph.entities.values() if e.type == EntityType.DESCRIPTION]
+        if not descriptions:
+            raise ValueError(
+                "Pre-flight failed: graph contains no description records. "
+                "Check the source export, encoding/delimiter, and field mappings."
+            )
+
     def check_cycles(self):
         adj = {e_id: [] for e_id in self.graph.entities.keys()}
         for edge in self.graph.edges:

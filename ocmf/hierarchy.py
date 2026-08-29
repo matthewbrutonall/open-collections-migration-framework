@@ -22,17 +22,33 @@ class HierarchyEngine:
     def _apply_identifier_dots(self):
         # find all description entities and map by their local identifier value
         desc_entities = [e for e in self.graph.entities.values() if e.type == EntityType.DESCRIPTION]
-        
-        # build lookup map
+
+        # Only identifiers from the named source field carry structure. Without
+        # this, an accession number or alternate ref that happens to contain a
+        # dot would forge a false parent-child edge.
+        structure_field = self.policies.get('hierarchy_source_field')
+
+        def structural_idents(entity):
+            if structure_field is None:
+                return entity.identifiers
+            return [i for i in entity.identifiers if i.source_field == structure_field]
+
+        # build lookup map; reject collisions so we never silently mis-link a
+        # child to whichever duplicate happened to be indexed last.
         id_map = {}
         for e in desc_entities:
-            for ident in e.identifiers:
+            for ident in structural_idents(e):
+                if ident.value in id_map and id_map[ident.value].id != e.id:
+                    raise ValueError(
+                        f"Duplicate identifier '{ident.value}' on entities "
+                        f"'{id_map[ident.value].id}' and '{e.id}'; cannot build hierarchy."
+                    )
                 id_map[ident.value] = e
-                
+
         orphan_policy = self.policies.get('orphans', 'abort')
-        
+
         for e in desc_entities:
-            for ident in e.identifiers:
+            for ident in structural_idents(e):
                 val = ident.value
                 if '.' in val:
                     parent_val = val.rsplit('.', 1)[0]

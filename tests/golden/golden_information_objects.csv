@@ -1,7 +1,7 @@
-legacyId,parentId,identifier,title,levelOfDescription,eventActors,eventTypes,eventDates,eventStartDates,eventEndDates
-item_node_PP001,,PP001,The Smith Collection,series,Smith Family,Creation,1920-1925,1920,1925
-item_node_PP001_01,item_node_PP001,PP001.01,Series 1: Diaries,series,NULL,Creation,1921-1922,1921,1922
-item_node_PP001_01_01,item_node_PP001_01,PP001.01.01,Diary 1,item,"Smith, John",Creation,1921,1921,1921
-item_node_PP001_01_02,item_node_PP001_01,PP001.01.02,Diary 2,item,"Smith, John",Creation,1922,1922,1922
-synthesized_PP002,,PP002,[Synthesized] PP002,series,,,,,
-item_node_PP002_01,synthesized_PP002,PP002.01,Orphan Child Item,item,"Doe, Jane",Creation,1930,1930,1930
+legacyId,parentId,identifier,title,levelOfDescription,eventDates,eventTypes,eventStartDates,eventEndDates,eventActors,eventActorHistories
+item_node_PP001,,PP001,The Smith Collection,series,1920-1925,Creation,1920,1925,Smith Family,NULL
+item_node_PP001_01,item_node_PP001,PP001.01,Series 1: Diaries,series,1921-1922,Creation,1921,1922,NULL,NULL
+item_node_PP001_01_01,item_node_PP001_01,PP001.01.01,Diary 1,item,1921,Creation,1921,1921,"Smith, John",NULL
+item_node_PP001_01_02,item_node_PP001_01,PP001.01.02,Diary 2,item,1922,Creation,1922,1922,"Smith, John",NULL
+synthesized_PP002,,PP002,[Synthesized] PP002,series,,,,,,
+item_node_PP002_01,synthesized_PP002,PP002.01,Orphan Child Item,item,1930,Creation,1930,1930,"Doe, Jane",NULL

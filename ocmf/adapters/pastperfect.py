@@ -1,34 +1,20 @@
 import csv
-import re
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 
 from ocmf.kernel.models import Entity, EntityType, RelationType, Identifier, DateValue
 from ocmf.kernel.graph import KernelGraph
 from ocmf.compiler import MappingEngine
+from ocmf.transforms import apply_transform
 
 class PastPerfectAdapter:
     def __init__(self, engine: MappingEngine):
         self.engine = engine
         self.graph = KernelGraph()
-        
-    def _apply_transform(self, val: str, transform: str, args: Optional[str]) -> any:
-        if not val:
-            return ""
-        val = str(val).strip()
-        if transform == 'identity':
-            return val
-        elif transform == 'parse_date':
-            m_year = re.match(r'^\s*(\d{4})\s*$', val)
-            if m_year:
-                return DateValue(expression=val, begin=m_year.group(1), end=m_year.group(1))
-            
-            m_range = re.match(r'^\s*(\d{4})\s*-\s*(\d{4})\s*$', val)
-            if m_range:
-                return DateValue(expression=val, begin=m_range.group(1), end=m_range.group(2))
-                
-            return DateValue(expression=val, begin=None, end=None)
-        else:
-            raise NotImplementedError(f"Transform '{transform}' is not implemented.")
+        self.transformation_notes: list = []
+        self.seen_source_fields: list = []
+
+    def _apply_transform(self, val: str, transform: str, args: Optional[str]) -> Any:
+        return apply_transform(val, transform, args)
 
     def ingest_csv(self, filepath: str) -> KernelGraph:
         encoding = self.engine.policies.get('encoding')
@@ -41,8 +27,9 @@ class PastPerfectAdapter:
                 raise ValueError("BOM detected. Use 'utf-8-sig' as the encoding policy to parse this file safely.")
             f.seek(0)
             
-            reader = csv.DictReader(f, escapechar='\\')
-            
+            reader = csv.DictReader(f)
+            self.seen_source_fields = list(reader.fieldnames or [])
+
             for row_idx, row in enumerate(reader):
                 row_entities: Dict[str, Entity] = {}
                 base_id = row.get("ref_code", f"row_{row_idx}").replace(".", "_").replace("-", "_")

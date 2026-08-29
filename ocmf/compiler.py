@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Any
 import openpyxl
 
-VALID_TRANSFORMS = {'identity', 'split', 'parse_date', 'lookup', 'concat'}
+from ocmf.transforms import VALID_TRANSFORMS
 
 @dataclass
 class EntityDef:
@@ -68,7 +68,17 @@ class MappingEngine:
                 
         if 'encoding' not in engine.policies:
             raise ValueError("An explicit 'encoding' policy is mandatory in the workbook.")
-                
+
+        # Fatal-by-default: an empty or unusable workbook must not pass as a
+        # valid mapping, or a typo could yield an empty CSV and "success".
+        if not engine.entities:
+            raise ValueError("Workbook defines no entities. The 'entities' sheet must declare at least one node.")
+        if not engine.fields:
+            raise ValueError("Workbook defines no field mappings. The 'fields' sheet must declare at least one mapping.")
+
+        from ocmf.writers.atom import validate_targets
+        validate_targets(engine)
+
         return engine
 
     def get_fields_for_node(self, node_name: str) -> List[FieldDef]:
