@@ -2,11 +2,27 @@
 
 ![Legacy collection exports passing through a graph and checks into an archival import and audit report](assets/open-collections-migration-framework.png)
 
-OCMF is a rigorous, graph-based data migration pipeline that processes archival exports from legacy collections systems (like PastPerfect and Axiell Adlib), strictly enforces typing and hierarchy constraints, and emits cleanly formatted, validation-ready CSVs for AtoM (Access to Memory).
+Moving an archive catalogue to a new system is more than copying columns. Records may need new field names, parent and child links, and checks for missing or inconsistent data. **Open Collections Migration Framework (OCMF)** helps prepare that move from PastPerfect or Axiell Adlib to AtoM (Access to Memory).
 
-OCMF operates on *exported* data files, not live databases — the export is the operational boundary. Migration accepts PastPerfect CSV and Adlib XML; DBF files are supported for profiling only (`ocmf profile`) and should be exported to CSV before migration.
+You give it an exported catalogue file and a mapping spreadsheet that says where each source field should go. It produces a new AtoM-style CSV and a set of review reports. A CSV is a table you can open in spreadsheet software. OCMF works on exported files; it does not connect to either live catalogue or import records into AtoM.
 
-## Install with your AI agent
+For example, imagine a PastPerfect row for *Diary 1*, dated `1921`, with reference `PP001.01.01`. A mapping spreadsheet can tell OCMF which columns hold its title and date. The framework can then place the diary beneath its parent record and flag fields or relationships that need review. This is an illustrative example based on the repository's test data.
+
+## Who might use it?
+
+Archivists, collection managers, and migration consultants preparing a documented, reviewable AtoM import. This is a command-line program for a planned migration project, especially when source fields vary or the hierarchy needs checking.
+
+## The work in three steps
+
+1. **Inspect the export.** The `profile` command reports features such as encoding, columns, and missing values so you can spot input problems.
+2. **Prepare the mapping spreadsheet.** The `template` command makes a workbook; you decide which source fields belong in which AtoM fields and review the policies.
+3. **Run and review the migration.** The `migrate` command prepares the CSV and an audit pack. Check those outputs against the source and your institutional rules before importing anything.
+
+Migration accepts PastPerfect CSV and Adlib XML. DBF files can be profiled, but must be exported to CSV before migration. The original export is not modified. **Choose a new output directory:** migration writes its named results there and can replace files with those names if they already exist.
+
+The `template --outfile` and `profile --outfile` options can also replace an existing file at the chosen path. Save each result to a new filename.
+
+## Set it up with your AI agent
 
 Copy and paste this into your agent:
 
@@ -14,19 +30,67 @@ Copy and paste this into your agent:
 Install Open Collections Migration Framework from https://github.com/matthewbrutonall/open-collections-migration-framework on my computer. Check that Python 3.9 or later is available, create a virtual environment, install the normal package from the repository, and verify that `ocmf --help` works. Tell me how to run it. Do not profile or migrate any collection data yet.
 ```
 
-## In plain English
+Once installed, ask your agent to help you inspect a **copy** of an export and create a mapping workbook. Review the workbook before running `migrate` on collection data.
 
-OCMF helps move catalogue data out of old collections databases and into AtoM.
+## What the migration produces
 
-It takes an exported file, such as a CSV from PastPerfect or XML from Adlib, reads it according to a mapping spreadsheet, checks for common migration problems, rebuilds parent-child hierarchies, and produces an AtoM-ready import CSV.
+- `information_objects.csv`: descriptions arranged in AtoM's import columns.
+- `DATA_LOSS_REGISTER.md`: an audit register of unmapped or missing fields, generated hierarchy nodes, and interpretive changes.
+- `LOAD_PLAYBOOK.md`: instructions for checking and importing the CSV on an AtoM server; the tool does not carry out that import.
+- `graph_snapshot.json`: a structured record of the intermediate catalogue model used to make the CSV.
 
-It also produces an audit pack showing what was mapped, what was missing, what was changed by interpretation, and what should be checked before import.
+Review titles, dates, identifiers, creators, access conditions, parent links, and the audit register before import. A successful run shows that the tool's checks passed; it does not certify that every archival decision or local mapping is correct.
 
-## Who this is for
+## Installation
 
-OCMF is for archivists, consultants, and GLAM technologists preparing legacy collection data for audited import into AtoM.
+You need Python 3.9 or later. On Linux or macOS, clone the repository and install it in a virtual environment:
 
-## Architecture
+```bash
+git clone https://github.com/matthewbrutonall/open-collections-migration-framework.git
+cd open-collections-migration-framework
+python3 -m venv venv
+source venv/bin/activate
+python -m pip install -e .
+ocmf --help
+```
+
+## CLI Usage
+
+The package installs the `ocmf` unified CLI tool natively into your environment.
+
+### 1. Profile the Source (Phase 0)
+Before mapping, inspect a raw export for encoding, delimiter, and per-column null rates:
+```bash
+ocmf profile --source input_data.csv          # prints JSON to stdout
+ocmf profile --source export.dbf --outfile health_report.json
+```
+CSV and DBF are supported for profiling. For DBF, install the optional reader from the cloned repository with `python -m pip install -e '.[dbf]'`.
+
+### 2. Generate a Mapping Template
+To start a new migration project, generate a blank mapping workbook:
+```bash
+ocmf template --outfile my_mapping.xlsx
+```
+
+### 3. Run the Migration Pipeline
+Once your workbook is mapped against your source data (CSV or XML), execute the full pipeline:
+```bash
+ocmf migrate --engine my_mapping.xlsx --source input_data.csv --outdir ./output
+```
+This will ingest the data, evaluate hierarchies, run the pre-flight audits, and generate:
+- `information_objects.csv` (AtoM ready)
+- `graph_snapshot.json` (Internal typed memory graph)
+- `DATA_LOSS_REGISTER.md` (Audit register: unmapped source fields, mapped fields missing from source, synthesized nodes, and interpretive transformations)
+- `LOAD_PLAYBOOK.md` (AtoM server import instructions)
+
+You can try the included synthetic example in a **new** output directory:
+
+```bash
+ocmf migrate --engine tests/golden/input_mapping.xlsx \
+  --source tests/golden/input_data.csv --outdir sample-output
+```
+
+## How it works internally
 
 Unlike simple row-by-row scripts, OCMF translates unstructured or deeply nested data into a strict, strongly-typed **Kernel Graph** before writing output. The pipeline operates in distinct stages:
 
@@ -82,45 +146,6 @@ The generated workbook includes conservative defaults:
 - Unsupported AtoM target properties are rejected during workbook compilation rather than stored in the graph and silently omitted from CSV output.
 
 The generated `LOAD_PLAYBOOK.md` follows AtoM 2.8 command-line guidance: validate with `php symfony csv:check-import --verbose` before importing with `php symfony csv:import`, and do not pass Symfony `--application`, `--env`, or `--connection` overrides.
-
-## Installation
-
-OCMF is configured as a native Python package.
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -e .
-```
-
-## CLI Usage
-
-The package installs the `ocmf` unified CLI tool natively into your environment.
-
-### 1. Profile the Source (Phase 0)
-Before mapping, inspect a raw export for encoding, delimiter, and per-column null rates:
-```bash
-ocmf profile --source input_data.csv          # prints JSON to stdout
-ocmf profile --source export.dbf --outfile health_report.json
-```
-CSV and DBF are supported (DBF requires the optional `dbfread` dependency: `pip install ocmf[dbf]`).
-
-### 2. Generate a Mapping Template
-To start a new migration project, generate a blank mapping workbook:
-```bash
-ocmf template --outfile my_mapping.xlsx
-```
-
-### 3. Run the Migration Pipeline
-Once your workbook is mapped against your source data (CSV or XML), execute the full pipeline:
-```bash
-ocmf migrate --engine my_mapping.xlsx --source input_data.csv --outdir ./output
-```
-This will ingest the data, evaluate hierarchies, run the pre-flight audits, and generate:
-- `information_objects.csv` (AtoM ready)
-- `graph_snapshot.json` (Internal typed memory graph)
-- `DATA_LOSS_REGISTER.md` (Audit register: unmapped source fields, mapped fields missing from source, synthesized nodes, and interpretive transformations)
-- `LOAD_PLAYBOOK.md` (AtoM server import instructions)
 
 ## Testing
 
