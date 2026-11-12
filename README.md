@@ -1,5 +1,7 @@
 # Open Collections Migration Framework (OCMF)
 
+![Legacy collection exports passing through a graph and checks into an archival import and audit report](assets/open-collections-migration-framework.png)
+
 OCMF is a rigorous, graph-based data migration pipeline that processes archival exports from legacy collections systems (like PastPerfect and Axiell Adlib), strictly enforces typing and hierarchy constraints, and emits cleanly formatted, validation-ready CSVs for AtoM (Access to Memory).
 
 OCMF operates on *exported* data files, not live databases — the export is the operational boundary. Migration accepts PastPerfect CSV and Adlib XML; DBF files are supported for profiling only (`ocmf profile`) and should be exported to CSV before migration.
