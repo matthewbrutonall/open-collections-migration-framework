@@ -6,6 +6,14 @@ OCMF is a rigorous, graph-based data migration pipeline that processes archival 
 
 OCMF operates on *exported* data files, not live databases — the export is the operational boundary. Migration accepts PastPerfect CSV and Adlib XML; DBF files are supported for profiling only (`ocmf profile`) and should be exported to CSV before migration.
 
+## Install with your AI agent
+
+Copy and paste this into your agent:
+
+```text
+Install Open Collections Migration Framework from https://github.com/matthewbrutonall/open-collections-migration-framework on my computer. Check that Python 3.9 or later is available, create a virtual environment, install the normal package from the repository, and verify that `ocmf --help` works. Tell me how to run it. Do not profile or migrate any collection data yet.
+```
+
 ## In plain English
 
 OCMF helps move catalogue data out of old collections databases and into AtoM.
